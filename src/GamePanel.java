@@ -24,6 +24,8 @@ public class GamePanel extends JPanel implements ActionListener {
     JButton newGameButton;
     JButton exitButton;
     JPanel buttonPanel;
+    boolean startScreenVisible = true;
+    boolean gameStarted = false;
 
 
     GamePanel() {
@@ -58,7 +60,9 @@ public class GamePanel extends JPanel implements ActionListener {
         this.setBackground(Color.black);
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
-        startGame();
+        if (!gameStarted) {
+            startGame();
+        }
     }
 
     public void startGame() {
@@ -66,11 +70,20 @@ public class GamePanel extends JPanel implements ActionListener {
         running = true;
         timer = new Timer(DELAY, this);
         timer.start();
+        gameStarted = true;
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        draw(g);
+
+        if (startScreenVisible) {
+            startScreen(g);
+        } else if (running) {
+            draw(g);
+        } else {
+            gameOver(g);
+        }
+
     }
 
     public void draw(Graphics g) {
@@ -103,6 +116,7 @@ public class GamePanel extends JPanel implements ActionListener {
             FontMetrics metrics = getFontMetrics(g.getFont());
             g.drawString("Score: "+applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: "+applesEaten))/2, g.getFont().getSize());
         }
+
         else {
             gameOver(g);
         }
@@ -132,7 +146,6 @@ public class GamePanel extends JPanel implements ActionListener {
                 x[0] = x[0] + UNIT_SIZE;
                 break;
         }
-
     }
 
     public void checkApple() {
@@ -192,7 +205,17 @@ public class GamePanel extends JPanel implements ActionListener {
         newGameButton.setVisible(true);
         exitButton.setVisible(true);
         buttonPanel.setVisible(true);
+    }
 
+    public void startScreen(Graphics g) {
+        //Start screen
+        g.setColor(Color.red);
+        g.setFont(new Font("Ink Free", Font.BOLD, 75));
+        FontMetrics metrics3 = getFontMetrics(g.getFont());
+        g.drawString("SNAKE", (SCREEN_WIDTH - metrics3.stringWidth("SNAKE"))/2, SCREEN_HEIGHT/2);
+        newGameButton.setVisible(true);
+        exitButton.setVisible(true);
+        buttonPanel.setVisible(true);
     }
 
     public void restartGame() {
@@ -203,7 +226,7 @@ public class GamePanel extends JPanel implements ActionListener {
         applesEaten = 0;
         DELAY = 75;
         direction = 'R';
-        running = true;
+
 
         for (int i = 0; i < bodyParts; i++) {
             x[i] = 0;
@@ -217,6 +240,8 @@ public class GamePanel extends JPanel implements ActionListener {
         }
         timer = new Timer(DELAY, this);
         timer.start();
+        running = true;
+        startScreenVisible = false;
     }
 
     @Override
