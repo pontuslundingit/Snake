@@ -9,7 +9,7 @@ public class GamePanel extends JPanel implements ActionListener {
     static final int SCREEN_HEIGHT = 600;
     static final int UNIT_SIZE = 20;
     static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / UNIT_SIZE;
-    static final int DELAY = 75;
+    static int DELAY = 75;
     final int x[] = new int[GAME_UNITS];
     final int y[] = new int[GAME_UNITS];
     int bodyParts = 6;
@@ -21,8 +21,38 @@ public class GamePanel extends JPanel implements ActionListener {
     Timer timer;
     Random random;
 
+    JButton newGameButton;
+    JButton exitButton;
+    JPanel buttonPanel;
+
 
     GamePanel() {
+        newGameButton = new JButton("New Game");
+        exitButton = new JButton("Exit");
+        newGameButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                restartGame();
+            }
+        });
+
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(2, 1));
+        buttonPanel.add(newGameButton);
+        buttonPanel.add(exitButton);
+        buttonPanel.setVisible(false);
+
+        add(buttonPanel);
+        setLayout(new FlowLayout(FlowLayout.CENTER, 0, 380));
+
         random = new Random();
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBackground(Color.black);
@@ -109,8 +139,14 @@ public class GamePanel extends JPanel implements ActionListener {
         if ((x[0] == appleX) && (y[0] == appleY)) {
             bodyParts++;
             applesEaten++;
+            increaseSpeed();
             newApple();
         }
+    }
+
+    private void increaseSpeed() {
+        DELAY -= 1;
+        timer.setDelay(DELAY);
     }
 
     public void checkCollisions() {
@@ -148,11 +184,39 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setFont(new Font("Ink Free", Font.BOLD, 40));
         FontMetrics metrics1 = getFontMetrics(g.getFont());
         g.drawString("Score: "+applesEaten, (SCREEN_WIDTH - metrics1.stringWidth("Score: "+applesEaten))/2, g.getFont().getSize());
-        //Game Over  text
+        //Game Over text
         g.setColor(Color.RED);
         g.setFont(new Font("Ink Free", Font.BOLD, 75));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Game Over", (SCREEN_WIDTH - metrics2.stringWidth("Game Over"))/2, SCREEN_HEIGHT/2);
+        newGameButton.setVisible(true);
+        exitButton.setVisible(true);
+        buttonPanel.setVisible(true);
+
+    }
+
+    public void restartGame() {
+        newGameButton.setVisible(false);
+        exitButton.setVisible(false);
+        buttonPanel.setVisible(false);
+        bodyParts = 6;
+        applesEaten = 0;
+        DELAY = 75;
+        direction = 'R';
+        running = true;
+
+        for (int i = 0; i < bodyParts; i++) {
+            x[i] = 0;
+            y[i] = 0;
+        }
+
+        newApple();
+
+        if (timer != null) {
+            timer.stop();
+        }
+        timer = new Timer(DELAY, this);
+        timer.start();
     }
 
     @Override
