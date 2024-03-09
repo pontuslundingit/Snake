@@ -123,8 +123,21 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void newApple() {
-        appleX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
-        appleY = random.nextInt((int) (SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
+        boolean appleOnSnake = true;
+
+        while (appleOnSnake) {
+            appleX = random.nextInt((int) (SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
+            appleY = random.nextInt((int) (SCREEN_HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
+
+            for (int i = 0; i < bodyParts; i++) {
+                if (appleX == x[i] && appleY == y[i]) {
+                    appleOnSnake = true;
+                    break;
+                } else {
+                    appleOnSnake = false;
+                }
+            }
+        }
     }
 
     public void move() {
